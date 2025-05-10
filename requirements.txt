@@ -1,0 +1,5 @@
+openai
+numpy
+PyMuPDF
+boto3
+psycopg2-binary 

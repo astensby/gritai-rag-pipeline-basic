@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+venv
+.venv
+.env
+
+uv.lock
+
+.DS_Store
+
+.testdata
+
+#persisted vectordb ignored from grit - recreate your own locally
+vector_db_aws.json
+vector_db.json

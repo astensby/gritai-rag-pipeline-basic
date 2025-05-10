@@ -1,0 +1,4 @@
+This is the first sample document. It discusses the basics of renewable energy sources.
+Solar power involves converting sunlight into electricity using photovoltaic panels.
+Wind power harnesses the kinetic energy of wind using turbines.
+Hydroelectric power is generated from the energy of moving water. 

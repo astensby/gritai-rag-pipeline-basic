@@ -1,0 +1,174 @@
+# GritAI - Simple RAG Pipelines
+
+## Overview
+
+This project provides a collection of example RAG (Retrieval Augmented Generation) pipelines, demonstrating various configurations and complexities used as part of our GritAI RAG & MCP Training Courses. It serves as a learning resource for understanding and implementing RAG systems, from basic in-memory setups to more advanced versions using local vector databases (pgvector) and cloud-based embedding services (OpenAI, AWS Bedrock).
+
+## Features
+
+The repository includes the following example pipelines:
+
+1.  **`rag_pipeline.py` (Core RAG Pipeline):**
+    *   Reads `.txt` files from the `data/` directory.
+    *   Implements a simple character-based chunking strategy with configurable overlap.
+    *   Generates embeddings using the OpenAI API (requires `OPENAI_API_KEY`).
+    *   Stores chunks and their embeddings in an in-memory vector database, persisted to a JSON file (`vector_db/vector_db.json`).
+    *   Performs brute-force retrieval using cosine similarity.
+    *   Includes a basic query answering and evaluation mechanism.
+
+2.  **`examples/01_extended_pipeline/rag_pipeline_advanced.py` (Extended Pipeline):**
+    *   Extends the core pipeline with support for reading `.pdf` files (using PyMuPDF/fitz).
+    *   Supports embedding generation via both OpenAI API and AWS Bedrock (e.g., Titan models).
+    *   Allows selection of the embedding provider.
+    *   Persists the vector database to a provider-specific JSON file (e.g., `vector_db/vector_db_openai.json`, `vector_db/vector_db_aws.json`).
+
+3.  **`examples/02_aws_complete_pipeline/rag_pipeline_advanced_aws.py` (AWS-focused Pipeline):**
+    *   A streamlined version focused exclusively on using AWS Bedrock for embeddings.
+    *   Reads `.txt` and `.pdf` files.
+    *   Stores data in a JSON-based vector database (`vector_db/vector_db_aws.json`).
+
+4.  **`examples/03_local_pipeline/` (Local VectorDB - PostgreSQL with pgvector):**
+    *   **`rag_pipeline_localdb_complete.py`:**
+        *   Integrates with a PostgreSQL database using the `pgvector` extension for efficient vector storage and similarity search (ANN).
+        *   Uses AWS Bedrock for generating embeddings.
+        *   Handles schema creation, data ingestion, chunking, embedding, and storage in PostgreSQL.
+        *   Retrieves relevant chunks using cosine similarity directly in the database.
+    *   **`rag_retrieval_only_localdb.py`:**
+        *   A retrieval-only example demonstrating how to query an existing pgvector database populated by `rag_pipeline_localdb_complete.py`.
+        *   Useful for scenarios where the knowledge base is pre-built and you only need to perform lookups (e.g., in an MCP server).
+        *   Uses AWS Bedrock to embed the query before searching the database.
+
+## Directory Structure
+
+```
+.
+├── data/                     # Sample .txt (and .pdf) files for ingestion
+├── examples/
+│   ├── 01_extended_pipeline/ # Advanced RAG with OpenAI & AWS
+│   ├── 02_aws_complete_pipeline/ # AWS Bedrock focused RAG
+│   └── 03_local_pipeline/    # RAG with PostgreSQL/pgvector
+├── vector_db/                # Default location for JSON-based vector stores
+├── .gitignore
+├── rag_pipeline.py           # Core RAG pipeline script
+├── README.md                 # This file
+└── requirements.txt          # Python package dependencies
+```
+
+## Prerequisites
+
+*   **Python:** Version 3.8 or higher is recommended.
+*   **pip:** Python package installer.
+*   **OpenAI API Key:** Required for examples using OpenAI embeddings. Set the `OPENAI_API_KEY` environment variable.
+*   **AWS Credentials:** Required for examples using AWS Bedrock. Configure your AWS credentials (e.g., via `~/.aws/credentials`, environment variables, or IAM roles) so that `boto3` can access them. The scripts also look for an optional `AWS_PROFILE_NAME` and `AWS_REGION` environment variable or use defaults. 
+
+boto3 works well with a simple SSO workflow.
+You will need to create an SSO profile, and make sure you are logged in with
+aws sso login --profile <your-profile-name>
+
+aws configure sso is a one‑time wizard; afterwards only aws sso login is needed to renew the token.
+
+*   **PostgreSQL with pgvector:** Required for the `03_local_pipeline` examples.
+    *   Install PostgreSQL (e.g., version 13+).
+    *   Install the [pgvector extension](https://github.com/pgvector/pgvector).
+    *   Ensure your PostgreSQL server is running.
+
+## Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repository-url>
+    cd <repository-name>
+    ```
+
+2.  **Create and activate a virtual environment (recommended):**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Configuration
+
+### 1. OpenAI API Key
+Set the `OPENAI_API_KEY` environment variable:
+```bash
+export OPENAI_API_KEY="your_openai_api_key_here"
+```
+You might want to add this to your shell's configuration file (e.g., `.bashrc`, `.zshrc`) for persistence. 
+
+Or use a .env file in the root of this project.
+
+### 2. AWS Credentials & Region
+Ensure your AWS credentials are configured for `boto3`. You can also set the following environment variables if needed by specific scripts (though they often have defaults or allow profile names in code):
+```bash
+export AWS_REGION="your-aws-region" # e.g., us-west-1
+# If using a specific AWS profile (some scripts might look for AWS_PROFILE_NAME or have it hardcoded as "my-mcp-server-profile"):
+# export AWS_PROFILE_NAME="your-profile-name"
+```
+
+### 3. PostgreSQL Connection (for `03_local_pipeline`)
+The scripts in `examples/03_local_pipeline/` use the following environment variables to connect to your PostgreSQL database. Set them according to your local setup:
+```bash
+export PGVECTOR_DB_NAME="vectordb"         # Your database name
+export PGVECTOR_DB_USER="your_username"    # Your PostgreSQL username
+export PGVECTOR_DB_PASSWORD="your_password"  # Your PostgreSQL password
+export PGVECTOR_DB_HOST="localhost"        # Database host
+export PGVECTOR_DB_PORT="5432"             # Database port
+```
+The `rag_pipeline_localdb_complete.py` script will attempt to create the necessary schema (`embeddings`) and table (`documents`) if they don't exist, and also tries to enable the `vector` extension.
+
+## Running the Examples
+
+Ensure you have configured the necessary API keys and environment variables as described above.
+
+### 1. Core RAG Pipeline (`rag_pipeline.py`)
+This script will:
+1.  Ingest documents from the `data/` directory.
+2.  Chunk them.
+3.  Create embeddings using OpenAI.
+4.  Store them in `vector_db/vector_db.json`.
+5.  Then, it enters a loop to answer your queries based on the built knowledge base.
+
+```bash
+python rag_pipeline.py
+```
+You can place your `.txt` files in the `data/` directory before running.
+
+### 2. Extended Pipeline (`examples/01_extended_pipeline/rag_pipeline_advanced.py`)
+This script can use either OpenAI or AWS for embeddings. It will also process `.pdf` files in the `data/` directory.
+```bash
+# The script defaults to OpenAI if available, then AWS.
+# It will create a vector_db_openai.json or vector_db_aws.json
+python examples/01_extended_pipeline/rag_pipeline_advanced.py
+```
+Check the script's `DEFAULT_EMBEDDING_PROVIDER` and how to potentially modify it if needed (e.g., by changing the variable or adapting the script to take a command-line argument).
+
+### 3. AWS-focused Pipeline (`examples/02_aws_complete_pipeline/rag_pipeline_advanced_aws.py`)
+This script uses AWS Bedrock for embeddings.
+```bash
+python examples/02_aws_complete_pipeline/rag_pipeline_advanced_aws.py
+```
+It will create `vector_db/vector_db_aws.json`.
+
+### 4. Local VectorDB Pipeline (`examples/03_local_pipeline/`)
+
+**a) Building the Knowledge Base (`rag_pipeline_localdb_complete.py`):**
+First, run this script to ingest documents, create embeddings (using AWS Bedrock), and store them in your PostgreSQL/pgvector database.
+```bash
+# Ensure PostgreSQL is running and environment variables are set
+python examples/03_local_pipeline/rag_pipeline_localdb_complete.py
+```
+
+**b) Querying the Knowledge Base (`rag_retrieval_only_localdb.py`):**
+After populating the database, you can use this script to ask questions. It will embed your query using AWS Bedrock and retrieve relevant chunks from PostgreSQL.
+```bash
+python examples/03_local_pipeline/rag_retrieval_only_localdb.py
+```
+
+## Data
+Place your `.txt` and `.pdf` (for relevant pipelines) files into the `data/` directory. The ingestion scripts will pick them up from there.
