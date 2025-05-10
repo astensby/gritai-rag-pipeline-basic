@@ -4,6 +4,28 @@
 
 This project provides a collection of example RAG (Retrieval Augmented Generation) pipelines, demonstrating various configurations and complexities used as part of our GritAI RAG & MCP Training Courses. It serves as a learning resource for understanding and implementing RAG systems, from basic in-memory setups to more advanced versions using local vector databases (pgvector) and cloud-based embedding services (OpenAI, AWS Bedrock).
 
+
+## Coding with the help of AI in Cursor
+
+The majority of code is this project was built through prompting with Cursor. 
+
+Be specific. Break things into steps. And iterate from there. 
+The core RAG pipeline was initially built with a fairly simple prompt, included here for inspiration:
+
+    ```text    
+    Create a simple local RAG pipeline in Python with clearly defined functions for each step so that the code is easy to read and follow and that we can later replace the approach in each step with more sophisticated approaches.
+
+    Use the following naive RAG structure:
+    1. Ingestion step: Read files in a dedicated folder inside of our project - this can then later be replaced with for instance a AWS S3 bucket
+    2. Chunking step: For each document ingested, we need to chunk the document. Please reccommend a simple approach to chunking to get us started.
+    3. Embedding step: We need to create embeddings (for simplicity, let us use OpenAI embeddings for this step)
+    4. Storage step: Let us for simplicity use an in memory vector db (for instance persisting it to a .json file or similar. This will later be replaced by a proper vector database.
+    5. Retrieval step: Let us also create a retrieval function for testing using a basic cos similarity measure between a user query and the vector storage. We should also include a re-ranking function that can be empty for now, but that we can later implement.
+    6. Evaluation step: Add a simple function for evaluation
+
+    We should be able to run steps 1-4 as one function (for ingesting and creating our knowledge base). And then subject to an established knowledge base, we should be able to run and test steps 5 and 6 separately.
+    ```
+
 ## Features
 
 The repository includes the following example pipelines:
@@ -91,6 +113,9 @@ aws configure sso is a one‑time wizard; afterwards only aws sso login is neede
     ```bash
     pip install -r requirements.txt
     ```
+
+## Data to ingest
+There are a few very simple files in the data folder. You can add .txt files and .pdf files to this folder. You can also use AI-coding assistants like Cursor or Claude to help you generate more data for testing! Simplay prompt the agent to create X additional .txt files in the data directory. You can also ask it to create significantly larger files for testing.
 
 ## Configuration
 
