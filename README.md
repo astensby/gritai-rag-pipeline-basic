@@ -67,6 +67,19 @@ The repository includes the following example pipelines:
     *   Stores data in a JSON-based vector database (`vector_db/vector_db_ollama.json`).
     *   Perfect for privacy-sensitive applications or offline development.
 
+6.  **`examples/05_openai_vector_store/` (OpenAI Vector Store Pipeline):**
+    *   **`rag_pipeline_openai_vectorstore.py`:**
+        *   Uses OpenAI's managed Vector Store API with the Assistants API.
+        *   Automatically uploads documents where OpenAI handles chunking and embedding.
+        *   Creates an Assistant configured with the `file_search` tool.
+        *   Stores configuration (vector store ID, assistant ID) for later retrieval.
+        *   Supports `.txt`, `.pdf`, `.md`, `.doc`, and `.docx` files.
+    *   **`rag_retrieval_openai_vectorstore.py`:**
+        *   Queries the pre-built OpenAI vector store using the Assistant.
+        *   Supports interactive mode, batch queries, and command-line queries.
+        *   Returns responses with automatic source citations from the knowledge base.
+        *   Ideal for production deployments leveraging OpenAI's managed infrastructure.
+
 ## Directory Structure
 
 ```
@@ -76,7 +89,8 @@ The repository includes the following example pipelines:
 │   ├── 01_extended_pipeline/ # Advanced RAG with OpenAI & AWS
 │   ├── 02_aws_complete_pipeline/ # AWS Bedrock focused RAG
 │   ├── 03_local_pipeline/    # RAG with PostgreSQL/pgvector
-│   └── 04_local_ollama/      # Local RAG with Ollama embeddings
+│   ├── 04_local_ollama/      # Local RAG with Ollama embeddings
+│   └── 05_openai_vector_store/ # RAG with OpenAI Vector Store
 ├── vector_db/                # Default location for JSON-based vector stores
 ├── .gitignore
 ├── rag_pipeline.py           # Core RAG pipeline script
@@ -216,6 +230,54 @@ ollama pull nomic-embed-text
 python examples/04_local_ollama/rag_pipeline_ollama.py
 ```
 It will create `vector_db/vector_db_ollama.json`.
+
+### 6. OpenAI Vector Store Pipeline (`examples/05_openai_vector_store/`)
+
+**a) Building the Knowledge Base (`rag_pipeline_openai_vectorstore.py`):**
+This script uploads your documents to OpenAI's Vector Store, where OpenAI automatically handles chunking and embedding. It also creates an Assistant configured with file search capabilities.
+
+```bash
+# Ensure OPENAI_API_KEY is set
+python examples/05_openai_vector_store/rag_pipeline_openai_vectorstore.py
+```
+
+The script will create a configuration file at `examples/05_openai_vector_store/vectorstore_config.json` containing your vector store ID and assistant ID.
+
+**Useful options:**
+- `--rebuild`: Force rebuild even if configuration exists
+- `--cleanup`: Delete the vector store and assistant (WARNING: permanent deletion!)
+
+```bash
+# Rebuild the knowledge base
+python examples/05_openai_vector_store/rag_pipeline_openai_vectorstore.py --rebuild
+
+# Clean up resources (will prompt for confirmation)
+python examples/05_openai_vector_store/rag_pipeline_openai_vectorstore.py --cleanup
+```
+
+**b) Querying the Knowledge Base (`rag_retrieval_openai_vectorstore.py`):**
+After building the knowledge base, use this script to query it. The Assistant will search the vector store and provide answers with source citations.
+
+```bash
+# Run with default test queries
+python examples/05_openai_vector_store/rag_retrieval_openai_vectorstore.py
+
+# Interactive mode - ask multiple questions
+python examples/05_openai_vector_store/rag_retrieval_openai_vectorstore.py --interactive
+
+# Command-line query
+python examples/05_openai_vector_store/rag_retrieval_openai_vectorstore.py "What is machine learning?"
+
+# Multiple queries at once
+python examples/05_openai_vector_store/rag_retrieval_openai_vectorstore.py "Query 1" "Query 2" "Query 3"
+```
+
+**Key Features:**
+- Fully managed by OpenAI (no manual chunking/embedding management)
+- Automatic source citations in responses
+- Supports multiple document formats (.txt, .pdf, .md, .doc, .docx)
+- Interactive query mode for exploration
+- Ideal for production use with OpenAI's infrastructure
 
 ## Data
 Place your `.txt` and `.pdf` (for relevant pipelines) files into the `data/` directory. The ingestion scripts will pick them up from there.

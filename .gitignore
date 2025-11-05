@@ -20,3 +20,10 @@ uv.lock
 #persisted vectordb ignored from grit - recreate your own locally
 vector_db_aws.json
 vector_db.json
+vector_db_ollama.json
+
+#openai vector store config
+examples/05_openai_vector_store/vectorstore_config.json
+
+#Ignored for public repository
+CLAUDE.md
