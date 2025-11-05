@@ -60,6 +60,13 @@ The repository includes the following example pipelines:
         *   Useful for scenarios where the knowledge base is pre-built and you only need to perform lookups (e.g., in an MCP server).
         *   Uses AWS Bedrock to embed the query before searching the database.
 
+5.  **`examples/04_local_ollama/rag_pipeline_ollama.py` (Local Ollama Pipeline):**
+    *   Runs 100% locally with no API keys or cloud dependencies.
+    *   Uses Ollama for generating embeddings with the `embeddinggemma` model.
+    *   Reads `.txt` files from the `data/` directory.
+    *   Stores data in a JSON-based vector database (`vector_db/vector_db_ollama.json`).
+    *   Perfect for privacy-sensitive applications or offline development.
+
 ## Directory Structure
 
 ```
@@ -68,7 +75,8 @@ The repository includes the following example pipelines:
 ├── examples/
 │   ├── 01_extended_pipeline/ # Advanced RAG with OpenAI & AWS
 │   ├── 02_aws_complete_pipeline/ # AWS Bedrock focused RAG
-│   └── 03_local_pipeline/    # RAG with PostgreSQL/pgvector
+│   ├── 03_local_pipeline/    # RAG with PostgreSQL/pgvector
+│   └── 04_local_ollama/      # Local RAG with Ollama embeddings
 ├── vector_db/                # Default location for JSON-based vector stores
 ├── .gitignore
 ├── rag_pipeline.py           # Core RAG pipeline script
@@ -93,6 +101,11 @@ aws configure sso is a one‑time wizard; afterwards only aws sso login is neede
     *   Install PostgreSQL (e.g., version 13+).
     *   Install the [pgvector extension](https://github.com/pgvector/pgvector).
     *   Ensure your PostgreSQL server is running.
+
+*   **Ollama:** Required for the `04_local_ollama` example.
+    *   Install Ollama from [https://ollama.com/download](https://ollama.com/download).
+    *   Start the Ollama service (typically runs automatically on macOS after installation, or run `ollama serve`).
+    *   Pull the embedding model: `ollama pull nomic-embed-text`
 
 ## Installation
 
@@ -194,6 +207,15 @@ After populating the database, you can use this script to ask questions. It will
 ```bash
 python examples/03_local_pipeline/rag_retrieval_only_localdb.py
 ```
+
+### 5. Local Ollama Pipeline (`examples/04_local_ollama/rag_pipeline_ollama.py`)
+This script runs 100% locally with no API keys required. It uses Ollama for embeddings.
+```bash
+# Ensure Ollama is installed and running, and the model is pulled
+ollama pull nomic-embed-text
+python examples/04_local_ollama/rag_pipeline_ollama.py
+```
+It will create `vector_db/vector_db_ollama.json`.
 
 ## Data
 Place your `.txt` and `.pdf` (for relevant pipelines) files into the `data/` directory. The ingestion scripts will pick them up from there.
